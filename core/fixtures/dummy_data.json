@@ -1,0 +1,293 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$dyvealice$yPzu3n6PvJEa3QgUnIFVnyGryuVKy7jHimoMuquMNFk=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "alice",
+      "first_name": "Alice",
+      "last_name": "Kim",
+      "email": "alice@example.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$dyvebob$3Sp74MkRUYw35vj0IadB1iKsFcfoTmyaKOA1NVuMcSU=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "bob",
+      "first_name": "Bob",
+      "last_name": "Lee",
+      "email": "bob@example.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-02T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$dyvecara$mx0Gooy2cwr6jciJ6TP2PzefDs2fzGEylh4G6dkprdE=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "cara",
+      "first_name": "Cara",
+      "last_name": "Park",
+      "email": "cara@example.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-03T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.notificationsetting",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "performance_update": true,
+      "proposal": true,
+      "reservation": true,
+      "marketing": false,
+      "created_at": "2024-02-01T00:00:00Z",
+      "updated_at": "2024-02-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.artist",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "name": "Seoul Groove",
+      "genres": "Jazz,Indie",
+      "equipments": "Guitar, Keyboard",
+      "portfolio_url": "https://example.com/seoulgroove",
+      "image_url": "https://images.dyve.local/artist1.jpg",
+      "history": "2023 Seoul Jazz Festival",
+      "created_at": "2024-02-05T00:00:00Z",
+      "updated_at": "2024-02-05T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.artist",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "name": "Rooftop Vibes",
+      "genres": "Electronic,디제잉",
+      "equipments": "DJ Controller",
+      "portfolio_url": "https://example.com/rooftopvibes",
+      "image_url": "https://images.dyve.local/artist2.jpg",
+      "history": "Hongdae Rooftop Party",
+      "created_at": "2024-02-06T00:00:00Z",
+      "updated_at": "2024-02-06T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.space",
+    "pk": 1,
+    "fields": {
+      "owner": 2,
+      "name": "Dyve Live Club",
+      "category": "라이브클럽",
+      "genres": "Rock,Indie",
+      "region": "서울",
+      "address": "서울시 마포구 어딘가 123",
+      "capacity": 200,
+      "description": "홍대 메인 라이브 클럽",
+      "equipments": "Full band set",
+      "image_url": "https://images.dyve.local/space1.jpg",
+      "created_at": "2024-02-10T00:00:00Z",
+      "updated_at": "2024-02-10T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.space",
+    "pk": 2,
+    "fields": {
+      "owner": 3,
+      "name": "Incheon Rooftop",
+      "category": "루프탑",
+      "genres": "Electronic,디제잉",
+      "region": "인천",
+      "address": "인천 연수구 바닷가 45",
+      "capacity": 120,
+      "description": "바다 전망 루프탑",
+      "equipments": "Sound system",
+      "image_url": "https://images.dyve.local/space2.jpg",
+      "created_at": "2024-02-11T00:00:00Z",
+      "updated_at": "2024-02-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.event",
+    "pk": 1,
+    "fields": {
+      "title": "Hongdae Indie Night",
+      "description": "신예 인디 밴드 쇼케이스",
+      "genre": "Indie",
+      "region": "서울",
+      "date": "2024-03-15",
+      "time": "19:00:00",
+      "venue_name": "Dyve Live Club",
+      "address": "서울시 마포구 어딘가 123",
+      "price": 20000,
+      "is_free": false,
+      "entry_type": "standing",
+      "image_url": "https://images.dyve.local/event1.jpg",
+      "allow_dyve_reservation": true,
+      "advertise": true,
+      "space": 1,
+      "artists": [1],
+      "created_at": "2024-02-12T00:00:00Z",
+      "updated_at": "2024-02-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.event",
+    "pk": 2,
+    "fields": {
+      "title": "Incheon Sunset Beats",
+      "description": "디제잉과 일렉트로닉 라이브",
+      "genre": "Electronic",
+      "region": "인천",
+      "date": "2024-03-20",
+      "time": "18:30:00",
+      "venue_name": "Incheon Rooftop",
+      "address": "인천 연수구 바닷가 45",
+      "price": 0,
+      "is_free": true,
+      "entry_type": "free",
+      "image_url": "https://images.dyve.local/event2.jpg",
+      "allow_dyve_reservation": true,
+      "advertise": false,
+      "space": 2,
+      "artists": [2],
+      "created_at": "2024-02-13T00:00:00Z",
+      "updated_at": "2024-02-13T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.event",
+    "pk": 3,
+    "fields": {
+      "title": "Busan R&B Lounge",
+      "description": "감성 R&B 스테이지",
+      "genre": "R&B",
+      "region": "경상",
+      "date": "2024-04-05",
+      "time": "20:00:00",
+      "venue_name": "Busan Harbor Hall",
+      "address": "부산 남포동 77",
+      "price": 35000,
+      "is_free": false,
+      "entry_type": "seat",
+      "image_url": "https://images.dyve.local/event3.jpg",
+      "allow_dyve_reservation": false,
+      "advertise": true,
+      "space": null,
+      "artists": [],
+      "created_at": "2024-02-14T00:00:00Z",
+      "updated_at": "2024-02-14T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.reservation",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "event": 1,
+      "quantity": 2,
+      "seat": "Standing",
+      "entry_type": "standing",
+      "price": 40000,
+      "qr_code": "QR-ABCD1234",
+      "reservation_code": "RSV123456A",
+      "created_at": "2024-02-16T00:00:00Z",
+      "updated_at": "2024-02-16T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.reservation",
+    "pk": 2,
+    "fields": {
+      "user": 3,
+      "event": 2,
+      "quantity": 1,
+      "seat": "Free",
+      "entry_type": "free",
+      "price": 0,
+      "qr_code": "QR-EFGH5678",
+      "reservation_code": "RSV123456B",
+      "created_at": "2024-02-17T00:00:00Z",
+      "updated_at": "2024-02-17T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.proposal",
+    "pk": 1,
+    "fields": {
+      "sender": 2,
+      "receiver_artist": 1,
+      "receiver_space": null,
+      "content": "홍대 인디 나잇 콜라보 제안",
+      "status": "pending",
+      "sent_at": "2024-02-18T00:00:00Z",
+      "created_at": "2024-02-18T00:00:00Z",
+      "updated_at": "2024-02-18T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.proposal",
+    "pk": 2,
+    "fields": {
+      "sender": 1,
+      "receiver_artist": null,
+      "receiver_space": 2,
+      "content": "루프탑 콜라보 행사 제안",
+      "status": "accepted",
+      "sent_at": "2024-02-19T00:00:00Z",
+      "created_at": "2024-02-19T00:00:00Z",
+      "updated_at": "2024-02-19T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.settlement",
+    "pk": 1,
+    "fields": {
+      "space": 1,
+      "event": 1,
+      "total_tickets": 180,
+      "settled_amount": 3000000,
+      "settled_at": "2024-02-25T12:00:00Z",
+      "created_at": "2024-02-25T12:00:00Z",
+      "updated_at": "2024-02-25T12:00:00Z"
+    }
+  },
+  {
+    "model": "core.settlement",
+    "pk": 2,
+    "fields": {
+      "space": 2,
+      "event": 2,
+      "total_tickets": 120,
+      "settled_amount": 1500000,
+      "settled_at": "2024-02-26T12:00:00Z",
+      "created_at": "2024-02-26T12:00:00Z",
+      "updated_at": "2024-02-26T12:00:00Z"
+    }
+  }
+]

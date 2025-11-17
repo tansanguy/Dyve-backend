@@ -1,0 +1,8 @@
+Django>=5.0,<6.0
+djangorestframework
+drf-spectacular
+gunicorn
+psycopg2-binary
+whitenoise
+django-cors-headers
+#124
