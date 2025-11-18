@@ -203,6 +203,12 @@ class DummyArtistSerializer(serializers.ModelSerializer):
         return self.context.get('phone')
 
 
+class DummyCreateResponseSerializer(serializers.Serializer):
+    events_created = serializers.IntegerField(default=0)
+    artists_created = serializers.IntegerField(default=0)
+    spaces_created = serializers.IntegerField(default=0)
+
+
 class VenueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Venue

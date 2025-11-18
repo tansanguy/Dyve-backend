@@ -14,6 +14,12 @@ from .views import (
     ReservationViewSet,
     SpaceViewSet,
 )
+from .views_dev import (
+    CreateDummyAllView,
+    CreateDummyArtistsView,
+    CreateDummyEventsView,
+    CreateDummySpacesView,
+)
 
 router = DefaultRouter()
 router.register('meta', MetaViewSet, basename='meta')
@@ -29,4 +35,8 @@ urlpatterns = router.urls + [
     path('dummy/create-user/', CreateDummyUserView.as_view(), name='dummy-create-user'),
     path('dummy/create-artist/', CreateDummyArtistView.as_view(), name='dummy-create-artist'),
     path('dummy/create-venue/', CreateDummyVenueView.as_view(), name='dummy-create-venue'),
+    path('dev/create-dummy-events/', CreateDummyEventsView.as_view(), name='dev-create-dummy-events'),
+    path('dev/create-dummy-artists/', CreateDummyArtistsView.as_view(), name='dev-create-dummy-artists'),
+    path('dev/create-dummy-spaces/', CreateDummySpacesView.as_view(), name='dev-create-dummy-spaces'),
+    path('dev/create-dummy-all/', CreateDummyAllView.as_view(), name='dev-create-dummy-all'),
 ]
