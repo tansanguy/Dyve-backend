@@ -9,6 +9,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "dyve-backend-ui3c.onrender.com",
     "dyve-6nk4.vercel.app",
+    "dyve-git-bepo-tansanguys-projects.vercel.app",
+    "dyve-oct3jb3uk-tansanguys-projects.vercel.app"
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
