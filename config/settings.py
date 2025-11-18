@@ -1,16 +1,20 @@
+import os
+import re
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-dyve-backend-secret-key'
 DEBUG = True
+ENVIRONMENT = os.getenv("DJANGO_ENV", "development").lower()
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "dyve-backend-ui3c.onrender.com",
     "dyve-6nk4.vercel.app",
-    "dyve-git-bepo-tansanguys-projects.vercel.app",
-    "dyve-oct3jb3uk-tansanguys-projects.vercel.app"
+    "dyve-front-git-bepo-tansanguys-projects.vercel.app",
+    "dyve-oct3jb3uk-tansanguys-projects.vercel.app",
+    re.compile(r".*\.vercel\.app$"),
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,9 +30,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -78,11 +82,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://dyve-6nk4.vercel.app",
-]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ["*"]
+CORS_ALLOWED_ORIGINS = [
+    "https://dyve-6nk4.vercel.app",
+    "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*vercel\.app$",
+]
+CORS_ALLOW_ALL_ORIGINS = ENVIRONMENT != "production"
 
 CSRF_TRUSTED_ORIGINS = [
     "https://dyve-backend-ui3c.onrender.com",
@@ -110,3 +119,5 @@ SPECTACULAR_SETTINGS = {
         'displayOperationId': True,
     },
 }
+
+print("🚀 CORS Loaded:", CORS_ALLOWED_ORIGINS)
