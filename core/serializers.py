@@ -9,6 +9,7 @@ from .models import (
     Reservation,
     Settlement,
     Space,
+    Venue,
 )
 
 User = get_user_model()
@@ -165,3 +166,45 @@ class SettlementSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class DummyUserSerializer(serializers.ModelSerializer):
+    phone = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'phone']
+        read_only_fields = ['id', 'username', 'email', 'phone']
+        ref_name = 'DummyUser'
+
+    def get_phone(self, obj):
+        return self.context.get('phone')
+
+
+class DummyArtistSerializer(serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()
+    portfolio_link = serializers.URLField(source='portfolio_url', read_only=True)
+    required_equipment = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Artist
+        fields = ['id', 'name', 'category', 'portfolio_link', 'required_equipment', 'phone']
+        read_only_fields = ['id', 'name', 'category', 'portfolio_link', 'required_equipment', 'phone']
+        ref_name = 'DummyArtist'
+
+    def get_category(self, obj):
+        return self.context.get('category', 'music')
+
+    def get_required_equipment(self, obj):
+        return self.context.get('required_equipment', [])
+
+    def get_phone(self, obj):
+        return self.context.get('phone')
+
+
+class VenueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Venue
+        fields = ['id', 'name', 'location', 'capacity', 'description', 'phone']
+        read_only_fields = ['id', 'name', 'location', 'capacity', 'description', 'phone']

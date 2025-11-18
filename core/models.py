@@ -61,6 +61,17 @@ class Artist(TimeStampedModel):
         return self.name
 
 
+class Venue(TimeStampedModel):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    capacity = models.PositiveIntegerField()
+    description = models.TextField()
+    phone = models.CharField(max_length=20)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Space(TimeStampedModel):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
