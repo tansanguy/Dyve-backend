@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import random
-from datetime import datetime
+from datetime import datetime, time as dtime, timedelta
 from itertools import cycle
+from pathlib import Path
 from typing import Dict, List, Sequence
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.text import slugify
 
+from core.constants import ARTIST_CATEGORIES, GENRES, REGIONS, SPACE_CATEGORIES
 from core.models import Artist, Event, Space
 from utils.dummy_image_loader import DummyImageLoader
 
@@ -241,13 +245,44 @@ EVENT_PRESETS = [
 TICKET_TYPES = ["입장확인", "좌석", "스탠딩"]
 PRICE_OPTIONS = [0, 10000, 15000, 20000, 25000, 30000]
 
+SINGLE_ARTIST_NAMES = [
+    "Canopy Ensemble",
+    "Riverline Project",
+    "Neon Transit",
+    "Atlas Folk",
+    "Parallel Lights",
+]
+ARTIST_STORIES = [
+    "서울 성수동에서 모듈러 신스를 기반으로 라이브를 진행하는 팀",
+    "부산 해변가 팝업 스테이지를 투어한 싱어송라이터 듀오",
+    "재즈와 시티팝을 결합한 밤 시간대 쇼케이스 팀",
+    "국내외 아트페어에서 사운드 퍼포먼스를 선보인 프로젝트",
+]
+SPACE_MOODS = ["따뜻한", "도시적인", "빈티지", "갤러리", "루프탑"]
+EVENT_TITLES = [
+    "Atlas Night Session",
+    "Neon Canvas Live",
+    "Parallel Garden Showcase",
+    "Transit Stories",
+    "Midnight Canopy",
+]
+EVENT_DESCRIPTIONS = [
+    "신진 아티스트와 빈티지 디제잉을 결합한 도심형 공연",
+    "아트워크 전시와 함께 진행되는 몰입형 라이브",
+    "퍼포먼스와 토크세션이 함께하는 하이브리드 행사",
+]
+RUNNING_TIMES = [60, 75, 90]
+
 
 class DummyDataBuilder:
     """Builds curated artists, spaces, and events with Cloudinary-hosted images."""
 
     def __init__(self):
-        self.user_model = get_user_model()
-        self.image_loader = DummyImageLoader()
+        self.image_loader = DummyImageLoader(
+            base_dir=Path(settings.BASE_DIR) / 'dummy_images',
+            folders={'artist': 'artist_profiles', 'space': 'space_profiles', 'poster': 'posters'},
+            consume_once=True,
+        )
         self.random = random.Random(20240905)
 
     def reset_all(self) -> None:
@@ -272,7 +307,7 @@ class DummyDataBuilder:
         return artists
 
     def create_spaces(self) -> List[Space]:
-        owner = self._get_space_owner()
+        owner = _get_dummy_space_owner()
         spaces: List[Space] = []
         for profile in SPACE_PROFILES:
             space = Space.objects.create(
@@ -330,7 +365,7 @@ class DummyDataBuilder:
                 price=price,
                 is_free=price == 0,
                 entry_type=entry_type,
-                image_url=self.image_loader.next_poster_image(),
+                image_url=self.image_loader.next_event_poster(),
                 allow_dyve_reservation=True,
                 advertise=idx % 4 == 0,
                 space=space,
@@ -351,20 +386,6 @@ class DummyDataBuilder:
             'events_created': len(events),
         }
 
-    def _get_space_owner(self):
-        owner, _ = self.user_model.objects.get_or_create(
-            username='dyve_dummy_host',
-            defaults={
-                'email': 'dummy-host@dyve.local',
-                'first_name': 'Dummy',
-                'last_name': 'Host',
-            },
-        )
-        if not owner.has_usable_password():
-            owner.set_unusable_password()
-            owner.save(update_fields=['password'])
-        return owner
-
     def _parse_schedule(self, schedule: str):
         dt = datetime.strptime(schedule, '%Y-%m-%d %H:%M')
         aware = timezone.make_aware(dt, timezone.get_current_timezone())
@@ -376,3 +397,174 @@ def seed_all(clear_existing: bool = True) -> Dict[str, int]:
     if clear_existing:
         builder.reset_all()
     return builder.create_all()
+
+
+def create_dummy_artist(image_loader: DummyImageLoader | None = None):
+    loader = image_loader or DummyImageLoader()
+    name = random.choice(SINGLE_ARTIST_NAMES)
+    description = random.choice(ARTIST_STORIES)
+    category = random.choice(ARTIST_CATEGORIES)
+    genres = ', '.join(random.sample(GENRES, k=min(2, len(GENRES))))
+    equipments = random.sample(
+        [
+            'mic',
+            'monitor speaker',
+            'mixer',
+            'dj controller',
+            'acoustic amp',
+        ],
+        k=2,
+    )
+    portfolio_slug = slugify(name)
+    portfolio = f'https://example.com/artists/{portfolio_slug}'
+    image_url = loader.next_artist_image()
+    artist = Artist.objects.create(
+        name=name,
+        category=category,
+        genres=genres,
+        equipments=', '.join(equipments),
+        portfolio_url=portfolio,
+        image_url=image_url,
+        history=description,
+        phone=f"010-{random.randint(1000, 9999):04d}-{random.randint(0, 9999):04d}",
+    )
+    meta = {
+        'name': name,
+        'description': description,
+        'category': category,
+        'profile_image_url': image_url,
+        'portfolio_link': portfolio,
+        'required_equipment': equipments,
+    }
+    return artist, meta
+
+
+def create_dummy_space(image_loader: DummyImageLoader | None = None):
+    loader = image_loader or DummyImageLoader()
+    name = random.choice([
+        '성수 Lofi Lab',
+        '부산 Wave Loft',
+        '홍대 Resonance Room',
+        '제주 Forest Stage',
+        '대구 Warehouse 79',
+    ])
+    region = random.choice([r for r in REGIONS if r])
+    mood = random.choice(SPACE_MOODS)
+    capacity = random.choice([50, 80, 120, 200])
+    description = f"{mood} 무드의 로컬 아트 공연장입니다."
+    address = f"{region} 문화로 {random.randint(10, 199)}"
+    phone = f"02-{random.randint(1000, 9999):04d}-{random.randint(1000, 9999):04d}"
+    image_url = loader.next_space_image()
+    owner = _get_dummy_space_owner()
+    space = Space.objects.create(
+        owner=owner,
+        name=name,
+        category=random.choice(SPACE_CATEGORIES) if SPACE_CATEGORIES else '공연장',
+        genres=', '.join(random.sample(GENRES, k=min(2, len(GENRES)))),
+        region=region,
+        address=address,
+        capacity=capacity,
+        description=description,
+        equipments='기본 음향, 조명',
+        image_url=image_url,
+        phone=phone,
+    )
+    meta = {
+        'name': name,
+        'description': description,
+        'region': region,
+        'address': address,
+        'image_url': image_url,
+        'capacity': capacity,
+        'mood': mood,
+        'phone_number': phone,
+    }
+    return space, meta
+
+
+def create_dummy_event(
+    artist: Artist,
+    space: Space,
+    image_loader: DummyImageLoader | None = None,
+):
+    loader = image_loader or DummyImageLoader()
+    poster_url = loader.next_event_poster()
+    title = random.choice(EVENT_TITLES)
+    description = random.choice(EVENT_DESCRIPTIONS)
+    future_date = timezone.localdate() + timedelta(days=random.randint(7, 35))
+    future_time = dtime(hour=random.choice([18, 19, 20, 21]), minute=random.choice([0, 15, 30, 45]))
+    future_start = timezone.make_aware(datetime.combine(future_date, future_time), timezone.get_current_timezone())
+    date_value = future_start.date()
+    time_value = future_start.time().replace(second=0, microsecond=0)
+    genre = random.choice(GENRES) if GENRES else 'Indie'
+    price = random.choice(PRICE_OPTIONS)
+    entry_type = random.choice(TICKET_TYPES)
+    running_time = random.choice(RUNNING_TIMES)
+    event = Event.objects.create(
+        title=title,
+        description=description,
+        genre=genre,
+        region=space.region,
+        date=date_value,
+        time=time_value,
+        venue_name=space.name,
+        address=space.address,
+        price=price,
+        is_free=price == 0,
+        entry_type=entry_type,
+        image_url=poster_url,
+        allow_dyve_reservation=True,
+        advertise=False,
+        space=space,
+    )
+    event.artists.set([artist])
+    meta = {
+        'title': title,
+        'description': description,
+        'poster_image_url': poster_url,
+        'date_time': future_start.strftime('%Y-%m-%d %H:%M'),
+        'genre': genre,
+        'running_time': running_time,
+        'price': price,
+        'entry_type': entry_type,
+    }
+    return event, meta
+
+
+def create_one() -> Dict[str, Dict[str, object]]:
+    loader = DummyImageLoader()
+    artist, artist_meta = create_dummy_artist(loader)
+    space, space_meta = create_dummy_space(loader)
+    event, event_meta = create_dummy_event(artist, space, loader)
+    return {
+        'artist': {
+            'id': artist.id,
+            **artist_meta,
+        },
+        'space': {
+            'id': space.id,
+            **space_meta,
+        },
+        'event': {
+            'id': event.id,
+            'artist_id': artist.id,
+            'space_id': space.id,
+            **event_meta,
+        },
+    }
+
+
+def _get_dummy_space_owner():
+    user_model = get_user_model()
+    owner, _ = user_model.objects.get_or_create(
+        username='dyve_dummy_host',
+        defaults={
+            'email': 'dummy-host@dyve.local',
+            'first_name': 'Dummy',
+            'last_name': 'Host',
+        },
+    )
+    if not owner.has_usable_password():
+        owner.set_unusable_password()
+        owner.save(update_fields=['password'])
+    return owner

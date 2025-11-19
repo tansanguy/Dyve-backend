@@ -11,7 +11,7 @@ from .views import (
     ReservationViewSet,
     SpaceViewSet,
 )
-from .views.dev_seed import SeedAllView
+from .views.dev_seed import SeedAllView, SeedOneView
 
 router = DefaultRouter()
 router.register('meta', MetaViewSet, basename='meta')
@@ -25,4 +25,5 @@ router.register('home', HomeViewSet, basename='home')
 
 urlpatterns = router.urls + [
     path('dev/seed-all/', SeedAllView.as_view(), name='dev-seed-all'),
+    path('dev/seed-one/', SeedOneView.as_view(), name='dev-seed-one'),
 ]

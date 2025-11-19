@@ -182,3 +182,45 @@ class SeedResultSerializer(serializers.Serializer):
     artists_created = serializers.IntegerField()
     spaces_created = serializers.IntegerField()
     events_created = serializers.IntegerField()
+
+
+class SeedOneArtistSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    category = serializers.CharField()
+    profile_image_url = serializers.URLField()
+    portfolio_link = serializers.CharField()
+    required_equipment = serializers.ListField(child=serializers.CharField())
+
+
+class SeedOneSpaceSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    region = serializers.CharField()
+    address = serializers.CharField()
+    image_url = serializers.URLField()
+    capacity = serializers.IntegerField()
+    mood = serializers.CharField()
+    phone_number = serializers.CharField()
+
+
+class SeedOneEventSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    artist_id = serializers.IntegerField()
+    space_id = serializers.IntegerField()
+    title = serializers.CharField()
+    description = serializers.CharField()
+    poster_image_url = serializers.URLField()
+    date_time = serializers.CharField()
+    genre = serializers.CharField()
+    running_time = serializers.IntegerField()
+    price = serializers.IntegerField()
+    entry_type = serializers.CharField()
+
+
+class SeedOneResponseSerializer(serializers.Serializer):
+    artist = SeedOneArtistSerializer()
+    space = SeedOneSpaceSerializer()
+    event = SeedOneEventSerializer()
