@@ -110,7 +110,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'DYVE — Indie Artist × Venue Matching Platform',
     'VERSION': '1.0.0',
     'SERVERS': [
-        {'url': 'http://localhost:8000', 'description': 'Local development server'},
+        {'url': 'https://dyve-backend-ui3c.onrender.com'},
     ],
     'SCHEMA_PATH_PREFIX': '/api',
     'COMPONENT_SPLIT_REQUEST': True,
