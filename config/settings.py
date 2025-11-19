@@ -132,3 +132,4 @@ SPECTACULAR_SETTINGS = {
 cloudinary.config(cloudinary_url=os.getenv('CLOUDINARY_URL'))
 
 print("🚀 CORS Loaded:", CORS_ALLOWED_ORIGINS)
+#1
