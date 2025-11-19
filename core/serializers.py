@@ -178,14 +178,7 @@ class VenueSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'location', 'capacity', 'description', 'phone']
 
 
-class DummyCreationSummarySerializer(serializers.Serializer):
-    artists_created = serializers.IntegerField(default=0)
-    spaces_created = serializers.IntegerField(default=0)
-    events_created = serializers.IntegerField(default=0)
-
-
-class DummyAllRequestSerializer(serializers.Serializer):
-    reset = serializers.BooleanField(
-        default=False,
-        help_text='true 일 경우 기존 Artist/Space/Event 레코드를 모두 삭제한 뒤 생성합니다.',
-    )
+class SeedResultSerializer(serializers.Serializer):
+    artists_created = serializers.IntegerField()
+    spaces_created = serializers.IntegerField()
+    events_created = serializers.IntegerField()

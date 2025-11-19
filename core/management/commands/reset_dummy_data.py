@@ -18,5 +18,5 @@ class Command(BaseCommand):
         builder.reset_all()
         self.stdout.write(self.style.SUCCESS('Existing dummy artists/spaces/events were deleted.'))
         if options.get('rebuild'):
-            summary = builder.create_all(reset=False)
+            summary = builder.create_all()
             self.stdout.write(self.style.SUCCESS(f"Rebuild complete: {summary}"))

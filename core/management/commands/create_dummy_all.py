@@ -1,13 +1,15 @@
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
-from utils.dummy_data import build_dummy_data
+from utils.dummy_data import seed_all
 
 
 class Command(BaseCommand):
     help = 'Create development dummy dataset (events, artists, spaces).'
 
     def handle(self, *args, **options):
-        summary = build_dummy_data(reset=False)
+        with transaction.atomic():
+            summary = seed_all(clear_existing=True)
         self.stdout.write(
             self.style.SUCCESS(
                 'Dummy data created: '

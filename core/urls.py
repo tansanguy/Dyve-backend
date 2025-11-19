@@ -11,12 +11,7 @@ from .views import (
     ReservationViewSet,
     SpaceViewSet,
 )
-from .views.dev_seed import (
-    CreateDummyAllView,
-    CreateDummyArtistsView,
-    CreateDummyEventsView,
-    CreateDummySpacesView,
-)
+from .views.dev_seed import SeedAllView
 
 router = DefaultRouter()
 router.register('meta', MetaViewSet, basename='meta')
@@ -29,8 +24,5 @@ router.register('proposals', ProposalViewSet, basename='proposal')
 router.register('home', HomeViewSet, basename='home')
 
 urlpatterns = router.urls + [
-    path('dev/create-dummy-artists/', CreateDummyArtistsView.as_view(), name='dev-create-dummy-artists'),
-    path('dev/create-dummy-spaces/', CreateDummySpacesView.as_view(), name='dev-create-dummy-spaces'),
-    path('dev/create-dummy-events/', CreateDummyEventsView.as_view(), name='dev-create-dummy-events'),
-    path('dev/create-dummy-all/', CreateDummyAllView.as_view(), name='dev-create-dummy-all'),
+    path('dev/seed-all/', SeedAllView.as_view(), name='dev-seed-all'),
 ]
