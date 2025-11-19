@@ -279,8 +279,8 @@ class DummyDataBuilder:
 
     def __init__(self):
         self.image_loader = DummyImageLoader(
-            base_dir=Path(settings.BASE_DIR) / 'dummy_images',
-            folders={'artist': 'artist_profiles', 'space': 'space_profiles', 'poster': 'posters'},
+            base_dir=Path(settings.BASE_DIR) / 'utils' / 'assets',
+            folders={'artist': 'artist', 'space': 'space', 'poster': 'event'},
             consume_once=True,
         )
         self.random = random.Random(20240905)

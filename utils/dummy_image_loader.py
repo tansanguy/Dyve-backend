@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import imghdr
 import logging
 import random
 from dataclasses import dataclass
@@ -129,6 +130,13 @@ class DummyImageLoader:
 
     def _try_upload(self, candidate: Path, folder: str) -> str | None:
         if not candidate.exists():
+            return None
+        if candidate.stat().st_size == 0:
+            logger.warning('Image %s is empty (0 bytes); skipping upload.', candidate)
+            return None
+        detected_format = imghdr.what(candidate)
+        if detected_format not in {'jpeg', 'png'}:
+            logger.warning('Image %s is not a valid JPEG/PNG (detected %s).', candidate, detected_format)
             return None
         try:
             result = cloudinary.uploader.upload(
