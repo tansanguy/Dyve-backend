@@ -299,7 +299,7 @@ class DummyDataBuilder:
                 genres=", ".join(profile["genres"]),
                 equipments=", ".join(profile["equipments"]),
                 portfolio_url="https://example.com/artist",
-                image_url=self.image_loader.next_artist_image(),
+                image_url=self.image_loader.get_random_artist_image(),
                 history=profile["history"],
                 phone=profile["phone"],
             )
@@ -417,7 +417,7 @@ def create_dummy_artist(image_loader: DummyImageLoader | None = None):
     )
     portfolio_slug = slugify(name)
     portfolio = f'https://example.com/artists/{portfolio_slug}'
-    image_url = _safe_url(loader.next_artist_image())
+    image_url = _safe_url(loader.get_random_artist_image())
     artist = Artist.objects.create(
         name=name,
         category=category,
