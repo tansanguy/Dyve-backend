@@ -18,7 +18,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .constants import GENRES, REGIONS, SPACE_CATEGORIES
+from .constants import ARTIST_CATEGORIES, EQUIPMENT_OPTIONS, GENRES, REGIONS, SPACE_CATEGORIES
 from .models import Artist, Event, NotificationSetting, Proposal, Reservation, Settlement, Space, Venue
 from .serializers import (
     ArtistSerializer,
@@ -203,6 +203,10 @@ HOME_BANNER_RESPONSE_EXAMPLE = OpenApiExample(
     response_only=True,
 )
 
+ARTIST_CATEGORY_EXAMPLE = ARTIST_CATEGORIES[0] if ARTIST_CATEGORIES else '밴드'
+REQUIRED_EQUIPMENT_EXAMPLE = EQUIPMENT_OPTIONS[:2] if EQUIPMENT_OPTIONS else ['마이크']
+VENUE_REGION_EXAMPLE = REGIONS[0] if REGIONS else '서울'
+
 DUMMY_USER_RESPONSE_EXAMPLE = OpenApiExample(
     'DummyUserResponse',
     summary='더미 유저 생성 응답 예시',
@@ -220,9 +224,9 @@ DUMMY_ARTIST_RESPONSE_EXAMPLE = OpenApiExample(
     value={
         'id': 55,
         'name': 'Dummy Artist 4567',
-        'category': 'music',
+        'category': ARTIST_CATEGORY_EXAMPLE,
         'portfolio_link': 'https://example.com/dummy',
-        'required_equipment': ['mic', 'speaker'],
+        'required_equipment': REQUIRED_EQUIPMENT_EXAMPLE,
         'phone': '010-7777-4321',
     },
     response_only=True,
@@ -233,7 +237,7 @@ DUMMY_VENUE_RESPONSE_EXAMPLE = OpenApiExample(
     value={
         'id': 88,
         'name': 'Dummy Venue 7890',
-        'location': '서울시 중구 다미로 7890',
+        'location': f'{VENUE_REGION_EXAMPLE} 컬쳐로 7890',
         'capacity': 50,
         'description': 'Development dummy venue',
         'phone': '02-1234-5678',
@@ -799,17 +803,27 @@ class CreateDummyArtistView(APIView):
     def post(self, request):
         suffix = random.randint(1000, 9999)
         phone_suffix = random.randint(1000, 9999)
+        category_pool = ARTIST_CATEGORIES or ['밴드']
+        equipment_pool = EQUIPMENT_OPTIONS or ['마이크']
+        genre_pool = GENRES or ['Indie']
+        category = random.choice(category_pool)
+        max_equipment = min(len(equipment_pool), 3)
+        equipment_count = random.randint(1, max_equipment)
+        required_equipment = random.sample(equipment_pool, k=equipment_count)
+        max_genres = min(len(genre_pool), 2)
+        genre_count = random.randint(1, max_genres)
+        selected_genres = random.sample(genre_pool, k=genre_count)
         payload = {
             'name': f'Dummy Artist {suffix}',
-            'category': 'music',
+            'category': category,
             'portfolio_link': 'https://example.com/dummy',
-            'required_equipment': ['mic', 'speaker'],
+            'required_equipment': required_equipment,
             'phone': f"010-7777-{phone_suffix:04d}",
         }
         artist = Artist.objects.create(
             name=payload['name'],
-            genres=payload['category'],
-            equipments=','.join(payload['required_equipment']),
+            genres=', '.join(selected_genres),
+            equipments=', '.join(payload['required_equipment']),
             portfolio_url=payload['portfolio_link'],
             image_url='https://example.com/dummy-artist.jpg',
             history='Development dummy artist profile',
@@ -826,6 +840,14 @@ class CreateDummyArtistView(APIView):
 class CreateDummyVenueView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @staticmethod
+    def _random_region():
+        if '서울' in REGIONS and random.random() < 0.7:
+            return '서울'
+        non_seoul = [region for region in REGIONS if region != '서울']
+        pool = non_seoul or REGIONS or ['서울']
+        return random.choice(pool)
+
     @extend_schema(
         tags=['Dummy'],
         summary='Create Dummy Venue',
@@ -837,9 +859,10 @@ class CreateDummyVenueView(APIView):
     def post(self, request):
         suffix = random.randint(1000, 9999)
         phone_suffix = random.randint(1000, 9999)
+        region = self._random_region()
         venue = Venue.objects.create(
             name=f'Dummy Venue {suffix}',
-            location=f'서울시 중구 다미로 {suffix}',
+            location=f'{region} 컬쳐로 {suffix}',
             capacity=50,
             description='Development dummy venue',
             phone=f"02-1234-{phone_suffix:04d}",

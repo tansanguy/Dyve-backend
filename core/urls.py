@@ -39,4 +39,8 @@ urlpatterns = router.urls + [
     path('dev/create-dummy-artists/', CreateDummyArtistsView.as_view(), name='dev-create-dummy-artists'),
     path('dev/create-dummy-spaces/', CreateDummySpacesView.as_view(), name='dev-create-dummy-spaces'),
     path('dev/create-dummy-all/', CreateDummyAllView.as_view(), name='dev-create-dummy-all'),
+    path('dev/seed-events/', CreateDummyEventsView.as_view(), name='dev-seed-events'),
+    path('dev/seed-artists/', CreateDummyArtistsView.as_view(), name='dev-seed-artists'),
+    path('dev/seed-spaces/', CreateDummySpacesView.as_view(), name='dev-seed-spaces'),
+    path('dev/seed-all/', CreateDummyAllView.as_view(), name='dev-seed-all'),
 ]

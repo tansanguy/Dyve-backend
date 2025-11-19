@@ -1,36 +1,9 @@
-REGIONS = [
-    '서울',
-    '경기',
-    '인천',
-    '강원',
-    '충청',
-    '전라',
-    '경상',
-    '제주',
-]
+"""Central constants sourced from shared dummy JSON catalogs."""
 
-GENRES = [
-    'Jazz',
-    'Rock',
-    'Electronic',
-    'Hip-Hop',
-    'Indie',
-    '디제잉',
-    '북토크',
-    '스탠드업 코미디',
-    '클래식',
-    'R&B',
-]
+from utils.json_loader import load_json
 
-SPACE_CATEGORIES = [
-    '라이브클럽',
-    '공연장',
-    '갤러리',
-    '카페',
-    '루프탑',
-    '바/펍',
-    '소극장',
-    '멀티홀',
-    '연습실',
-    '기타',
-]
+REGIONS = load_json('regions')
+GENRES = load_json('genres')
+SPACE_CATEGORIES = load_json('space_categories')
+ARTIST_CATEGORIES = load_json('artist_categories')
+EQUIPMENT_OPTIONS = load_json('equipment')
