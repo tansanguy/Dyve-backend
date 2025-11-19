@@ -16,9 +16,9 @@ REGION_CHOICES = [(value, value) for value in REGIONS]
 GENRE_CHOICES = [(value, value) for value in GENRES]
 SPACE_CATEGORY_CHOICES = [(value, value) for value in SPACE_CATEGORIES]
 ENTRY_TYPE_CHOICES = [
-    ('standing', 'Standing'),
+    ('general', 'General Admission'),
     ('seat', 'Seat'),
-    ('free', 'Free'),
+    ('standing', 'Standing'),
 ]
 PROPOSAL_STATUS_CHOICES = [
     ('pending', 'Pending'),

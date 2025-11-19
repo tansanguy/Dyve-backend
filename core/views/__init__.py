@@ -1,4 +1,3 @@
-import random
 import uuid
 
 from django.contrib.auth import get_user_model
@@ -16,21 +15,17 @@ from rest_framework import mixins, permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .constants import ARTIST_CATEGORIES, EQUIPMENT_OPTIONS, GENRES, REGIONS, SPACE_CATEGORIES
-from .models import Artist, Event, NotificationSetting, Proposal, Reservation, Settlement, Space, Venue
-from .serializers import (
+from ..constants import GENRES, REGIONS, SPACE_CATEGORIES
+from ..models import Artist, Event, NotificationSetting, Proposal, Reservation, Settlement, Space
+from ..serializers import (
     ArtistSerializer,
-    DummyArtistSerializer,
-    DummyUserSerializer,
     EventSerializer,
     NotificationSettingSerializer,
     ProposalSerializer,
     ReservationSerializer,
     SettlementSerializer,
     SpaceSerializer,
-    VenueSerializer,
     UserSerializer,
 )
 
@@ -141,7 +136,7 @@ EVENT_CREATE_REQUEST_EXAMPLE = OpenApiExample(
         'address': '인천 연수구 바닷가 45',
         'price': 0,
         'is_free': True,
-        'entry_type': 'free',
+        'entry_type': 'general',
         'image_url': 'https://images.dyve.local/event-new.jpg',
         'allow_dyve_reservation': True,
         'advertise': False,
@@ -200,48 +195,6 @@ HOME_BANNER_RESPONSE_EXAMPLE = OpenApiExample(
             'updated_at': '2024-02-12T00:00:00Z',
         }
     ],
-    response_only=True,
-)
-
-ARTIST_CATEGORY_EXAMPLE = ARTIST_CATEGORIES[0] if ARTIST_CATEGORIES else '밴드'
-REQUIRED_EQUIPMENT_EXAMPLE = EQUIPMENT_OPTIONS[:2] if EQUIPMENT_OPTIONS else ['마이크']
-VENUE_REGION_EXAMPLE = REGIONS[0] if REGIONS else '서울'
-
-DUMMY_USER_RESPONSE_EXAMPLE = OpenApiExample(
-    'DummyUserResponse',
-    summary='더미 유저 생성 응답 예시',
-    value={
-        'id': 101,
-        'username': 'dummy_user_1234',
-        'email': 'dummy1234@test.com',
-        'phone': '010-1234-5678',
-    },
-    response_only=True,
-)
-DUMMY_ARTIST_RESPONSE_EXAMPLE = OpenApiExample(
-    'DummyArtistResponse',
-    summary='더미 아티스트 생성 응답 예시',
-    value={
-        'id': 55,
-        'name': 'Dummy Artist 4567',
-        'category': ARTIST_CATEGORY_EXAMPLE,
-        'portfolio_link': 'https://example.com/dummy',
-        'required_equipment': REQUIRED_EQUIPMENT_EXAMPLE,
-        'phone': '010-7777-4321',
-    },
-    response_only=True,
-)
-DUMMY_VENUE_RESPONSE_EXAMPLE = OpenApiExample(
-    'DummyVenueResponse',
-    summary='더미 공연장 생성 응답 예시',
-    value={
-        'id': 88,
-        'name': 'Dummy Venue 7890',
-        'location': f'{VENUE_REGION_EXAMPLE} 컬쳐로 7890',
-        'capacity': 50,
-        'description': 'Development dummy venue',
-        'phone': '02-1234-5678',
-    },
     response_only=True,
 )
 
@@ -752,120 +705,3 @@ class HomeViewSet(viewsets.ViewSet):
         queryset = Event.objects.filter(region=region).order_by('date', 'time')[:5]
         serializer = EventSerializer(queryset, many=True)
         return Response({'region': region, 'events': serializer.data})
-
-
-class CreateDummyUserView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    @staticmethod
-    def _generate_unique_user_credentials():
-        while True:
-            suffix = random.randint(1000, 9999)
-            username = f"dummy_user_{suffix}"
-            email = f"dummy{suffix}@test.com"
-            if not User.objects.filter(Q(username=username) | Q(email=email)).exists():
-                return username, email, suffix
-
-    @extend_schema(
-        tags=['Dummy'],
-        summary='Create Dummy User',
-        description='개발용 더미 유저 데이터를 자동 생성하여 반환한다.',
-        request=None,
-        responses=DummyUserSerializer,
-        examples=[DUMMY_USER_RESPONSE_EXAMPLE],
-    )
-    def post(self, request):
-        username, email, suffix = self._generate_unique_user_credentials()
-        phone_suffix = random.randint(1000, 9999)
-        phone = f"010-1234-{phone_suffix:04d}"
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=f'dummy_pass_{suffix}',
-            first_name='Dummy',
-            last_name='User',
-        )
-        serializer = DummyUserSerializer(user, context={'phone': phone})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CreateDummyArtistView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    @extend_schema(
-        tags=['Dummy'],
-        summary='Create Dummy Artist',
-        description='개발용 더미 아티스트 데이터를 자동 생성하여 반환한다.',
-        request=None,
-        responses=DummyArtistSerializer,
-        examples=[DUMMY_ARTIST_RESPONSE_EXAMPLE],
-    )
-    def post(self, request):
-        suffix = random.randint(1000, 9999)
-        phone_suffix = random.randint(1000, 9999)
-        category_pool = ARTIST_CATEGORIES or ['밴드']
-        equipment_pool = EQUIPMENT_OPTIONS or ['마이크']
-        genre_pool = GENRES or ['Indie']
-        category = random.choice(category_pool)
-        max_equipment = min(len(equipment_pool), 3)
-        equipment_count = random.randint(1, max_equipment)
-        required_equipment = random.sample(equipment_pool, k=equipment_count)
-        max_genres = min(len(genre_pool), 2)
-        genre_count = random.randint(1, max_genres)
-        selected_genres = random.sample(genre_pool, k=genre_count)
-        payload = {
-            'name': f'Dummy Artist {suffix}',
-            'category': category,
-            'portfolio_link': 'https://example.com/dummy',
-            'required_equipment': required_equipment,
-            'phone': f"010-7777-{phone_suffix:04d}",
-        }
-        artist = Artist.objects.create(
-            name=payload['name'],
-            genres=', '.join(selected_genres),
-            equipments=', '.join(payload['required_equipment']),
-            portfolio_url=payload['portfolio_link'],
-            image_url='https://example.com/dummy-artist.jpg',
-            history='Development dummy artist profile',
-        )
-        context = {
-            'category': payload['category'],
-            'required_equipment': payload['required_equipment'],
-            'phone': payload['phone'],
-        }
-        serializer = DummyArtistSerializer(artist, context=context)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CreateDummyVenueView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    @staticmethod
-    def _random_region():
-        if '서울' in REGIONS and random.random() < 0.7:
-            return '서울'
-        non_seoul = [region for region in REGIONS if region != '서울']
-        pool = non_seoul or REGIONS or ['서울']
-        return random.choice(pool)
-
-    @extend_schema(
-        tags=['Dummy'],
-        summary='Create Dummy Venue',
-        description='개발용 더미 공연장 데이터를 자동 생성하여 반환한다.',
-        request=None,
-        responses=VenueSerializer,
-        examples=[DUMMY_VENUE_RESPONSE_EXAMPLE],
-    )
-    def post(self, request):
-        suffix = random.randint(1000, 9999)
-        phone_suffix = random.randint(1000, 9999)
-        region = self._random_region()
-        venue = Venue.objects.create(
-            name=f'Dummy Venue {suffix}',
-            location=f'{region} 컬쳐로 {suffix}',
-            capacity=50,
-            description='Development dummy venue',
-            phone=f"02-1234-{phone_suffix:04d}",
-        )
-        serializer = VenueSerializer(venue)
-        return Response(serializer.data, status=status.HTTP_200_OK)

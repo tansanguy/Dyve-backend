@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from core.models import Artist, Event, Space
-from utils.json_loader import load_json
+₩from utils.json_loader import load_json
 
 ENTRY_TYPES = ['standing', 'seat', 'free']
 

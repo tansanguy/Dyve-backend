@@ -1,19 +1,17 @@
 from django.core.management.base import BaseCommand
 
-from core.views_dev import DummyDataGenerator
+from utils.dummy_seed import seed_all
 
 
 class Command(BaseCommand):
     help = 'Create development dummy dataset (events, artists, spaces).'
 
     def handle(self, *args, **options):
-        generator = DummyDataGenerator()
-        artists = generator.create_artists()
-        spaces = generator.create_spaces()
-        events, _, _ = generator.create_events(artists=artists, spaces=spaces, ensure_relations=False)
-
+        summary = seed_all(reset=False)
         self.stdout.write(
             self.style.SUCCESS(
-                f'Dummy data created: {len(artists)} artists, {len(spaces)} spaces, {len(events)} events.'
+                'Dummy data created: '
+                f"{summary['artists_created']} artists, {summary['spaces_created']} spaces, "
+                f"{summary['events_created']} events (Dyve available: {summary['dyve_available']})."
             )
         )

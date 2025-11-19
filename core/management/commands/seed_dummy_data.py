@@ -124,7 +124,7 @@ class Command(BaseCommand):
                 'address': '인천 연수구 바닷가 45',
                 'price': 0,
                 'is_free': True,
-                'entry_type': 'free',
+                'entry_type': 'general',
                 'image_url': 'https://images.dyve.local/event2.jpg',
                 'allow_dyve_reservation': True,
                 'advertise': False,
@@ -150,7 +150,7 @@ class Command(BaseCommand):
             event=event2,
             defaults={
                 'quantity': 1,
-                'seat': 'Free',
+                'seat': 'General',
                 'entry_type': event2.entry_type,
                 'price': 0,
                 'qr_code': 'QR-AUTO-2',
