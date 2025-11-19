@@ -1,38 +1,74 @@
-import base64
+import shutil
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from PIL import Image
 
-# Tiny valid JPEG blobs (1x1 px) encoded as base64 strings.
-ARTIST_JPEG = (
-    "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUQEhIVEhUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGhAQGi0lHyYtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAJ8BPgMBIgACEQEDEQH/xAAbAAABBQEBAAAAAAAAAAAAAAAFAQIDBAYAB//EADYQAAIBAwMCBAQEAwkAAAAAAAABAgMRBAUSITFBUQYTImFxgaHB8COBscHR4RVCUmKC0f/EABgBAAMBAQAAAAAAAAAAAAAAAAABAgME/8QAHxEBAAICAgIDAAAAAAAAAAAAAAECESExEhNRcaHR/9oADAMBAAIRAxEAPwCbeAQCgEAgBAIAQCASBRGoOv70tdwZEq8PUUvS9R6aYqX4UfkbmZUMtE4x3Efr2JwR6DzZIURtb7iP0PZB2STa1BHV0TsWoxaqJvY4h6Lge2Fwh+5bTX8eTqIrqVHtJHYWsTZMkJI4koc9zYeF9jkLHy0NlM0kY6XRm6ZxDcBsOXy50i9Jciw7VJ7rPNNOIhUUO9h29T6PrtMvdvl3Zv0CpoA0qFYO0vv5ssdtYzM6nuG5kpY6pAA4VtlKDPVFqtvusrVJXQ90iY1qBVjCqIYnr1J7a0Aod6l7mfV/s3bV6Lx222295Il2jjp1H1m/hO5Zs7X7uw7wfEqSI6kYHooAAQCASBQCgEAgBAIAQBBP/9k="
-)
-SPACE_JPEG = (
-    "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExIWFhUWGRkXFxgYGB0ZHR0dHh8dGx0dGhwfHyggGh0mHx0fITEiJSkrLi4uHyAzODMtNygtLisBCgoKDg0OGxAQGy0mICYtLy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAKAA2wMBIgACEQEDEQH/xAAbAAACAgMBAAAAAAAAAAAAAAAFBgMEAAECB//EADgQAAEDAwIEBAQEBgMBAAAAAAEAAhEDIQQSMUEFMkFhcQYigZGhscHR8DLB0eHxFSNzgpLxJENTU2L/xAAZAQEAAwEBAAAAAAAAAAAAAAAAAgMEAQX/xAAiEQACAgICAgIDAAAAAAAAAAAAAQIRAyExBBIiQWFxodH/2gAMAwEAAhEDEQA/ANFrtdoNdvV48lOqq7QxFtJ8jeePWnxugkmqw94QtRRGKFxkq+FSU2rXD0/QF6M+noaqzWb1tbzD0Z0yMQ8zNG1tGEXVqaoYduCK8gsknlLgiOk5nJBDgqo1U9rjdTlX0081bTHKoS2yyvOkA4yyKHDk7fefn21mw+mS6rY4Y4kSiq4u1zCP6H3+m+VdtuXu1F1qcE0aVYgXmeXFOYG2qhbOBh0x+52tP3MJqvYbwm/aIy5BGI4cbYM1vne93HbUv77KKs0MlpWlVBdxYFXcpAIXA6nBtt8/6Xf2O60XUm06mKVVqo++yjWdjoJoA4GOeAAfXXpuOLbTdKVmytLEpEqVqJ60sTGkFJ1Pf2Pg1JaiKll8VRrq27TwHup3sYhkXA4OOkpOvToJIn2VslWzQ0dJZR4hKNo7VU8+7c+Pti1OCxXD1By0uMjTln3AQABDCk+/mWz9xdUl0k0nGXIjlGQT0xPR7kZubkOuquZ9KqlSVqPG3DI3YAHHgddh1G2ar9Nv1Kly2rSVLkBaIYElVAJyCcY5yPnQ8YXOOkIB6aBReNppbxU16tJw2sVrmPpO0j5fVcffVJvWvFvk7Tp4fRSeKziRSklCSDwOeMba7e+IG5t+0jXUqSig8S9sT5ciyMy8ipigc4xjaDjnyzpvYetFe2MVSCNJbFS50U7emVjh7jk+Oe9BTvRarfuj6XZsqrZm23TISPZTS2kDcA/eux+c14nxLba6upz1R6XyQ3EVURj3Y1QAsA5JJAz7bvqVXrbU46FZLTW2lZd2Ud0mQ0soYDjARgnrypr0iy9rvVNpFzP6ck5zuNKoXknHJzjP3o6PV5PZ7azR9Nw6lipKct47AkZYHoR6nXttc0Cjep2bo4aWSIrJK7IwJGOhAHob0/eugbtOmtatdaIFVYJGEY6jkcEex2A7knc/erVugg6qs0YFupIyF3AjcZJP8Al4P8Ata523pzehr95p2rTiqMQ8yjyussc4P5jlSP8ASQT9K8se3Oa7yQ7l1cNZk3lBIXKx4ONp1AIBBwQc8sj8xM1DGZ1s9m1Ce4VFLglQJAPzvRAA++2W8sgLljG7nuOM9q2watrdamkzTpRUq0AghjjUcfe3B6jjnP+mi4W4n0EiNKR1kZYwQGBxxv3q9PqaGeM7x90dKnY8YkIFMqnPbbfSVSbfzof/Z"
-)
-EVENT_JPEG = (
-    "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"
-)
-
-IMAGE_MATRIX = {
-    'artist': {'default.jpg': ARTIST_JPEG, 'sample_1.jpg': SPACE_JPEG, 'sample_2.jpg': EVENT_JPEG},
-    'space': {'default.jpg': SPACE_JPEG, 'sample_1.jpg': EVENT_JPEG},
-    'event': {'default.jpg': EVENT_JPEG, 'sample_1.jpg': ARTIST_JPEG},
+SOURCE_TARGET_MAP = {
+    'artist_profiles': ('artist', 'artist'),
+    'space_profiles': ('space', 'space'),
+    'posters': ('event', 'event'),
 }
 
 
 class Command(BaseCommand):
-    help = 'Regenerates real JPEG dummy images under utils/assets for Cloudinary uploads.'
+    help = 'Copies and re-encodes dummy_images assets into utils/assets with safe JPEGs.'
 
     def handle(self, *args, **options):
-        asset_root = Path(settings.BASE_DIR) / 'utils' / 'assets'
-        for category, files in IMAGE_MATRIX.items():
-            category_path = asset_root / category
-            category_path.mkdir(parents=True, exist_ok=True)
-            for filename, blob in files.items():
-                target = category_path / filename
-                data = base64.b64decode(blob)
-                target.write_bytes(data)
-                self.stdout.write(self.style.SUCCESS(f'[{category}] wrote {filename} ({len(data)} bytes)'))
-        self.stdout.write(self.style.SUCCESS('Dummy asset images refreshed.'))
+        base_dir = Path(settings.BASE_DIR)
+        src_root = base_dir / 'dummy_images'
+        dst_root = base_dir / 'utils' / 'assets'
+        skipped: list[tuple[str, str]] = []
+
+        for src_folder, (dst_folder, prefix) in SOURCE_TARGET_MAP.items():
+            src_path = src_root / src_folder
+            dst_path = dst_root / dst_folder
+            dst_path.mkdir(parents=True, exist_ok=True)
+            self._clear_folder(dst_path)
+
+            if not src_path.exists():
+                self.stderr.write(self.style.WARNING(f'Source folder missing: {src_path}'))
+                continue
+
+            files = sorted(p for p in src_path.iterdir() if p.is_file())
+            if not files:
+                self.stderr.write(self.style.WARNING(f'No files found in {src_path}'))
+                continue
+
+            default_written = False
+            counter = 0
+
+            for file_path in files:
+                try:
+                    with Image.open(file_path) as img:
+                        rgb = img.convert('RGB')
+                        counter += 1
+                        target_name = f"{prefix}_{counter}.jpg"
+                        target_path = dst_path / target_name
+                        rgb.save(target_path, format='JPEG', quality=90)
+                        if not default_written:
+                            default_path = dst_path / 'default.jpg'
+                            rgb.save(default_path, format='JPEG', quality=90)
+                            default_written = True
+                except Exception as exc:  # pylint: disable=broad-except
+                    skipped.append((str(file_path), str(exc)))
+                    counter -= 1
+
+            self.stdout.write(
+                self.style.SUCCESS(f'Copied {counter} images from {src_folder} to {dst_folder}.')
+            )
+
+        if skipped:
+            self.stderr.write(self.style.WARNING('Skipped files:'))
+            for name, reason in skipped:
+                self.stderr.write(f' - {name}: {reason}')
+        else:
+            self.stdout.write(self.style.SUCCESS('All dummy images refreshed successfully.'))
+
+    def _clear_folder(self, folder: Path) -> None:
+        for child in folder.glob('*'):
+            if child.is_file():
+                child.unlink()
+            else:
+                shutil.rmtree(child)
