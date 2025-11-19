@@ -15,7 +15,7 @@ from django.utils.text import slugify
 
 from core.constants import ARTIST_CATEGORIES, GENRES, REGIONS, SPACE_CATEGORIES
 from core.models import Artist, Event, Space
-from utils.dummy_image_loader import DummyImageLoader
+from utils.dummy_image_loader import FALLBACK_IMAGE, DummyImageLoader
 
 
 ARTIST_PROFILES = [
@@ -417,7 +417,7 @@ def create_dummy_artist(image_loader: DummyImageLoader | None = None):
     )
     portfolio_slug = slugify(name)
     portfolio = f'https://example.com/artists/{portfolio_slug}'
-    image_url = loader.next_artist_image()
+    image_url = _safe_url(loader.next_artist_image())
     artist = Artist.objects.create(
         name=name,
         category=category,
@@ -454,7 +454,7 @@ def create_dummy_space(image_loader: DummyImageLoader | None = None):
     description = f"{mood} 무드의 로컬 아트 공연장입니다."
     address = f"{region} 문화로 {random.randint(10, 199)}"
     phone = f"02-{random.randint(1000, 9999):04d}-{random.randint(1000, 9999):04d}"
-    image_url = loader.next_space_image()
+    image_url = _safe_url(loader.next_space_image())
     owner = _get_dummy_space_owner()
     space = Space.objects.create(
         owner=owner,
@@ -488,7 +488,7 @@ def create_dummy_event(
     image_loader: DummyImageLoader | None = None,
 ):
     loader = image_loader or DummyImageLoader()
-    poster_url = loader.next_event_poster()
+    poster_url = _safe_url(loader.next_event_poster())
     title = random.choice(EVENT_TITLES)
     description = random.choice(EVENT_DESCRIPTIONS)
     future_date = timezone.localdate() + timedelta(days=random.randint(7, 35))
@@ -552,6 +552,13 @@ def create_one() -> Dict[str, Dict[str, object]]:
             **event_meta,
         },
     }
+
+
+def _safe_url(url: str | None) -> str:
+    if url:
+        return url
+    fallback = getattr(settings, 'DYVE_DEFAULT_EVENT_IMAGE', None)
+    return fallback or FALLBACK_IMAGE
 
 
 def _get_dummy_space_owner():

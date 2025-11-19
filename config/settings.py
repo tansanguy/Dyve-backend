@@ -2,6 +2,7 @@ import os
 import re
 from pathlib import Path
 
+import cloudinary
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,12 +20,10 @@ ALLOWED_HOSTS = [
     "dyve-oct3jb3uk-tansanguys-projects.vercel.app",
     re.compile(r".*\.vercel\.app$"),
 ]
-CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'Your_Cloud_Name')
-CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', 'Your_Api_Key')
-CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', 'Your_Api_Secret')
 DYVE_DUMMY_IMAGE_FOLDER = 'dyve_dummy'
-DYVE_DEFAULT_EVENT_IMAGE = (
-    f"https://res.cloudinary.com/{CLOUDINARY_CLOUD_NAME}/image/upload/v1/{DYVE_DUMMY_IMAGE_FOLDER}/default_event.jpg"
+DYVE_DEFAULT_EVENT_IMAGE = os.getenv(
+    'DYVE_DEFAULT_EVENT_IMAGE',
+    'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
 )
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -130,16 +129,6 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-if all([CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
-    import cloudinary
-    import cloudinary.api
-    import cloudinary.uploader
-
-    cloudinary.config(
-        cloud_name=CLOUDINARY_CLOUD_NAME,
-        api_key=CLOUDINARY_API_KEY,
-        api_secret=CLOUDINARY_API_SECRET,
-        secure=True,
-    )
+cloudinary.config(cloudinary_url=os.getenv('CLOUDINARY_URL'))
 
 print("🚀 CORS Loaded:", CORS_ALLOWED_ORIGINS)

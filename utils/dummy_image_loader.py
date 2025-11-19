@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import random
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,7 +12,10 @@ import cloudinary.uploader
 from django.conf import settings
 
 
+logger = logging.getLogger(__name__)
+
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png'}
+FALLBACK_IMAGE = 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg'
 
 
 @dataclass
@@ -64,8 +68,9 @@ class DummyImageLoader:
     ) -> None:
         default_base = Path(settings.BASE_DIR) / 'utils' / 'assets'
         self.base_dir = Path(base_dir) if base_dir else default_base
-        self.folder_map = folders or {'artist': 'artists', 'space': 'spaces', 'poster': 'events'}
+        self.folder_map = folders or {'artist': 'artist', 'space': 'space', 'poster': 'event'}
         self.consume_once = consume_once
+        self._ensure_asset_dirs()
         self.pools: Dict[str, ImagePool] = {
             key: ImagePool(self.base_dir / value, consume_once=consume_once)
             for key, value in self.folder_map.items()
@@ -75,7 +80,7 @@ class DummyImageLoader:
             'space': 'space_profiles',
             'poster': 'posters',
         }
-        self._fallback_url = getattr(settings, 'DYVE_DEFAULT_EVENT_IMAGE', '')
+        self._fallback_url = getattr(settings, 'DYVE_DEFAULT_EVENT_IMAGE', FALLBACK_IMAGE)
 
     def next_artist_image(self) -> str:
         return self._upload('artist')
@@ -91,31 +96,51 @@ class DummyImageLoader:
         return self.next_event_poster()
 
     # ------------------------------------------------------------------
+    def _ensure_asset_dirs(self) -> None:
+        for key, folder_name in self.folder_map.items():
+            folder_path = self.base_dir / folder_name
+            if not folder_path.exists():
+                logger.warning('Asset folder missing for %s at %s. Creating automatically.', key, folder_path)
+                folder_path.mkdir(parents=True, exist_ok=True)
+
     def _upload(self, category: str) -> str:
         pool = self.pools.get(category)
         if not pool:
+            logger.warning('Unknown image category requested: %s', category)
             return self._fallback_url
         path = pool.next_path()
-        if path is None:
-            return self._fallback_url
         cloud_folder = self._cloud_folder.get(category, category)
-        return self._upload_with_fallback([path, pool.default_path], cloud_folder)
+        return self._upload_with_fallback(path, pool.default_path, cloud_folder)
 
-    def _upload_with_fallback(self, candidates: Iterable[Path], folder_name: str) -> str:
+    def _upload_with_fallback(self, path: Path | None, default_path: Path | None, folder_name: str) -> str:
         folder = f"{settings.DYVE_DUMMY_IMAGE_FOLDER}/{folder_name}"
-        for candidate in candidates:
-            if candidate is None:
-                continue
-            try:
-                result = cloudinary.uploader.upload(
-                    str(candidate),
-                    folder=folder,
-                    use_filename=True,
-                    unique_filename=False,
-                )
-                secure_url = result.get('secure_url')
-            except Exception:
-                secure_url = None
-            if secure_url:
-                return secure_url
-        return self._fallback_url
+        # 1. try provided path
+        if path:
+            url = self._try_upload(path, folder)
+            if url:
+                return url
+        # 2. try default fallback file
+        if default_path:
+            url = self._try_upload(default_path, folder)
+            if url:
+                return url
+        # 3. return global fallback url
+        return self._fallback_url or FALLBACK_IMAGE
+
+    def _try_upload(self, candidate: Path, folder: str) -> str | None:
+        if not candidate.exists():
+            return None
+        try:
+            result = cloudinary.uploader.upload(
+                str(candidate),
+                folder=folder,
+                use_filename=True,
+                unique_filename=False,
+            )
+            url = result.get('secure_url')
+            if not url:
+                logger.warning('Cloudinary response missing secure_url for %s', candidate)
+            return url
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.warning('Cloudinary upload failed for %s: %s', candidate, exc)
+            return None
