@@ -2,7 +2,10 @@ import os
 import re
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = 'django-insecure-dyve-backend-secret-key'
 DEBUG = True
@@ -16,6 +19,13 @@ ALLOWED_HOSTS = [
     "dyve-oct3jb3uk-tansanguys-projects.vercel.app",
     re.compile(r".*\.vercel\.app$"),
 ]
+CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', 'Your_Cloud_Name')
+CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', 'Your_Api_Key')
+CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', 'Your_Api_Secret')
+DYVE_DUMMY_IMAGE_FOLDER = 'dyve_dummy'
+DYVE_DEFAULT_EVENT_IMAGE = (
+    f"https://res.cloudinary.com/{CLOUDINARY_CLOUD_NAME}/image/upload/v1/{DYVE_DUMMY_IMAGE_FOLDER}/default_event.jpg"
+)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -119,5 +129,17 @@ SPECTACULAR_SETTINGS = {
         'displayOperationId': True,
     },
 }
+
+if all([CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+    import cloudinary
+    import cloudinary.api
+    import cloudinary.uploader
+
+    cloudinary.config(
+        cloud_name=CLOUDINARY_CLOUD_NAME,
+        api_key=CLOUDINARY_API_KEY,
+        api_secret=CLOUDINARY_API_SECRET,
+        secure=True,
+    )
 
 print("🚀 CORS Loaded:", CORS_ALLOWED_ORIGINS)

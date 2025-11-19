@@ -41,11 +41,13 @@ class ArtistSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'name',
+            'category',
             'genres',
             'equipments',
             'portfolio_url',
             'image_url',
             'history',
+            'phone',
             'created_at',
             'updated_at',
         ]
@@ -67,6 +69,7 @@ class SpaceSerializer(serializers.ModelSerializer):
             'description',
             'equipments',
             'image_url',
+            'phone',
             'created_at',
             'updated_at',
         ]
@@ -175,8 +178,14 @@ class VenueSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'location', 'capacity', 'description', 'phone']
 
 
-class DevSeedResponseSerializer(serializers.Serializer):
+class DummyCreationSummarySerializer(serializers.Serializer):
     artists_created = serializers.IntegerField(default=0)
     spaces_created = serializers.IntegerField(default=0)
     events_created = serializers.IntegerField(default=0)
-    dyve_available = serializers.IntegerField(default=0)
+
+
+class DummyAllRequestSerializer(serializers.Serializer):
+    reset = serializers.BooleanField(
+        default=False,
+        help_text='true 일 경우 기존 Artist/Space/Event 레코드를 모두 삭제한 뒤 생성합니다.',
+    )

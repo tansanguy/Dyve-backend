@@ -1,98 +1,108 @@
-"""Dev-only endpoints that seed realistic demo data."""
-
 from __future__ import annotations
 
+from django.conf import settings
 from drf_spectacular.utils import OpenApiExample, extend_schema
-from rest_framework import permissions, serializers, status
+from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from utils.dummy_seed import seed_all as run_seed_all
-from utils.dummy_seed import seed_artists as run_seed_artists
-from utils.dummy_seed import seed_events as run_seed_events
-from utils.dummy_seed import seed_spaces as run_seed_spaces
-from ..serializers import DevSeedResponseSerializer
+from utils.dummy_data import build_artists, build_dummy_data, build_events, build_spaces
+from ..serializers import DummyAllRequestSerializer, DummyCreationSummarySerializer
 
+SHARED_DESCRIPTION = (
+    "- 아티스트·공간·공연 데이터를 고정 큐레이션 세트로 생성합니다.\n"
+    "- 공연 지역 분포: 서울 70% / 비서울 30%.\n"
+    "- 티켓 타입(enum): 입장확인 · 좌석 · 스탠딩 을 순환 분배합니다.\n"
+    "- 이벤트 이미지는 Cloudinary 폴더 'dyve_dummy' 로 업로드하며 secure_url 을 저장합니다. "
+    f"업로드 실패 시 {getattr(settings, 'DYVE_DEFAULT_EVENT_IMAGE', 'https://res.cloudinary.com/Your_Cloud_Name/image/upload/v1/dyve_dummy/default_event.jpg')} 를 사용합니다."
+)
 
-class SeedAllRequestSerializer(serializers.Serializer):
-    reset = serializers.BooleanField(default=False, help_text='기존 Artist/Space/Event 데이터를 모두 삭제합니다.')
-
-SEED_RESPONSE_EXAMPLE = OpenApiExample(
-    'SeedResponse',
-    summary='더미 데이터 생성 결과 예시',
-    value={'artists_created': 10, 'spaces_created': 10, 'events_created': 20, 'dyve_available': 15},
+DUMMY_RESPONSE_EXAMPLE = OpenApiExample(
+    "DummyCreationSummary",
+    summary="생성 결과 예시",
+    value={"artists_created": 10, "spaces_created": 10, "events_created": 22},
     response_only=True,
 )
 
-SEED_ALL_REQUEST_EXAMPLE = OpenApiExample(
-    'SeedAllResetRequest',
-    summary='Seed-All 요청 예시',
-    value={'reset': True},
+DUMMY_ALL_REQUEST_EXAMPLE = OpenApiExample(
+    "DummyAllResetRequest",
+    summary="전체 리셋 생성 요청",
+    value={"reset": True},
     request_only=True,
 )
 
 
-class SeedArtistsView(APIView):
+def _response(summary: dict[str, int]) -> Response:
+    return Response(summary, status=status.HTTP_201_CREATED)
+
+
+class CreateDummyArtistsView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
-        tags=['Dev Seed'],
-        summary='아티스트 더미 생성',
-        description='실제 팀명을 기반으로 한 아티스트 데이터 10개 이상을 생성합니다.',
-        request=None,
-        responses={201: DevSeedResponseSerializer},
-        examples=[SEED_RESPONSE_EXAMPLE],
+        tags=["Dev Dummy"],
+        summary="아티스트 큐레이션 생성",
+        description=(
+            SHARED_DESCRIPTION
+            + "\n- 요청 시 기존 동일 명칭 아티스트 10팀을 덮어쓰고, 포트폴리오 링크와 한국형 연락처를 고정 세트로 제공합니다."
+        ),
+        responses={201: DummyCreationSummarySerializer},
+        examples=[DUMMY_RESPONSE_EXAMPLE],
     )
     def post(self, request):
-        summary = run_seed_artists()
-        return Response(summary, status=status.HTTP_201_CREATED)
+        return _response(build_artists())
 
 
-class SeedSpacesView(APIView):
+class CreateDummySpacesView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
-        tags=['Dev Seed'],
-        summary='공간 더미 생성',
-        description='홍대/성수 등 실제 느낌의 명칭과 카테고리로 공간 데이터를 10개 이상 생성합니다.',
-        request=None,
-        responses={201: DevSeedResponseSerializer},
-        examples=[SEED_RESPONSE_EXAMPLE],
+        tags=["Dev Dummy"],
+        summary="공간 큐레이션 생성",
+        description=(
+            SHARED_DESCRIPTION
+            + "\n- 서울/지방 소속이 고정된 10개 공간을 생성하며 지역별 설명, 수용인원(50·80·120·200)과 02 국번 연락처를 제공합니다."
+        ),
+        responses={201: DummyCreationSummarySerializer},
+        examples=[DUMMY_RESPONSE_EXAMPLE],
     )
     def post(self, request):
-        summary = run_seed_spaces()
-        return Response(summary, status=status.HTTP_201_CREATED)
+        return _response(build_spaces())
 
 
-class SeedEventsView(APIView):
+class CreateDummyEventsView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
-        tags=['Dev Seed'],
-        summary='공연 더미 생성',
-        description='서울 비중 70% 이상, entry_type(general/seat/standing) 고르게 분배된 공연 데이터를 20개 이상 생성합니다.',
-        request=None,
-        responses={201: DevSeedResponseSerializer},
-        examples=[SEED_RESPONSE_EXAMPLE],
+        tags=["Dev Dummy"],
+        summary="공연 큐레이션 생성",
+        description=(
+            SHARED_DESCRIPTION
+            + "\n- 20~25개의 공연을 생성하며 Cloudinary 업로드로 확보한 이미지 URL, 티켓 타입/가격 분배 규칙, "
+            "고정 제목 리스트(Indie Garden Concert 등)를 문서화합니다."
+        ),
+        responses={201: DummyCreationSummarySerializer},
+        examples=[DUMMY_RESPONSE_EXAMPLE],
     )
     def post(self, request):
-        summary = run_seed_events()
-        return Response(summary, status=status.HTTP_201_CREATED)
+        return _response(build_events())
 
 
-class SeedAllView(APIView):
+class CreateDummyAllView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
-        tags=['Dev Seed'],
-        summary='전체 더미 데이터 생성',
-        description='아티스트/공간/공연을 순서대로 생성하고 FK 관계를 연결합니다. reset=True면 기존 데이터를 모두 삭제합니다.',
-        request=SeedAllRequestSerializer,
-        responses={201: DevSeedResponseSerializer},
-        examples=[SEED_ALL_REQUEST_EXAMPLE, SEED_RESPONSE_EXAMPLE],
+        tags=["Dev Dummy"],
+        summary="전체 큐레이션 생성",
+        description=(
+            SHARED_DESCRIPTION
+            + "\n- reset=true 일 경우 기존 Artist/Space/Event 테이블을 비우고 단일 트랜잭션으로 아티스트→공간→공연 순으로 생성합니다."
+        ),
+        request=DummyAllRequestSerializer,
+        responses={201: DummyCreationSummarySerializer},
+        examples=[DUMMY_ALL_REQUEST_EXAMPLE, DUMMY_RESPONSE_EXAMPLE],
     )
     def post(self, request):
-        serializer = SeedAllRequestSerializer(data=request.data)
+        serializer = DummyAllRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        summary = run_seed_all(reset=serializer.validated_data.get('reset', False))
-        return Response(summary, status=status.HTTP_201_CREATED)
+        return _response(build_dummy_data(reset=serializer.validated_data.get("reset", False)))

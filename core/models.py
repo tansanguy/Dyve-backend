@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from .constants import GENRES, REGIONS, SPACE_CATEGORIES
+from .constants import ARTIST_CATEGORIES, GENRES, REGIONS, SPACE_CATEGORIES
 
 
 class TimeStampedModel(models.Model):
@@ -15,10 +15,11 @@ class TimeStampedModel(models.Model):
 REGION_CHOICES = [(value, value) for value in REGIONS]
 GENRE_CHOICES = [(value, value) for value in GENRES]
 SPACE_CATEGORY_CHOICES = [(value, value) for value in SPACE_CATEGORIES]
+ARTIST_CATEGORY_CHOICES = [(value, value) for value in ARTIST_CATEGORIES]
 ENTRY_TYPE_CHOICES = [
-    ('general', 'General Admission'),
-    ('seat', 'Seat'),
-    ('standing', 'Standing'),
+    ('입장확인', '입장확인'),
+    ('좌석', '좌석'),
+    ('스탠딩', '스탠딩'),
 ]
 PROPOSAL_STATUS_CHOICES = [
     ('pending', 'Pending'),
@@ -51,11 +52,13 @@ class Artist(TimeStampedModel):
         blank=True,
     )
     name = models.CharField(max_length=255)
+    category = models.CharField(max_length=50, choices=ARTIST_CATEGORY_CHOICES, blank=True)
     genres = models.CharField(max_length=255, help_text='쉼표로 구분된 장르')
     equipments = models.TextField()
     portfolio_url = models.URLField(blank=True)
     image_url = models.URLField()
     history = models.TextField()
+    phone = models.CharField(max_length=20, blank=True)
 
     def __str__(self) -> str:
         return self.name
@@ -87,6 +90,7 @@ class Space(TimeStampedModel):
     description = models.TextField()
     equipments = models.TextField()
     image_url = models.URLField()
+    phone = models.CharField(max_length=20, blank=True)
 
     def __str__(self) -> str:
         return self.name
