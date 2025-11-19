@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import imghdr
 import logging
 import random
 from dataclasses import dataclass
@@ -10,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Iterable
 
 import cloudinary.uploader
+from PIL import Image
 from django.conf import settings
 
 
@@ -134,7 +134,12 @@ class DummyImageLoader:
         if candidate.stat().st_size == 0:
             logger.warning('Image %s is empty (0 bytes); skipping upload.', candidate)
             return None
-        detected_format = imghdr.what(candidate)
+        try:
+            with Image.open(candidate) as img:
+                detected_format = img.format.lower() if img.format else None
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.warning('Invalid image %s: %s', candidate, exc)
+            return None
         if detected_format not in {'jpeg', 'png'}:
             logger.warning('Image %s is not a valid JPEG/PNG (detected %s).', candidate, detected_format)
             return None
