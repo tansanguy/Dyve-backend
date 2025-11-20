@@ -30,6 +30,9 @@ class FakeLoginView(APIView):
         description='테스트용 계정을 자동 생성 후 세션을 발급하는 페이크 로그인 엔드포인트',
     )
     def post(self, request):
+        if not settings.DEBUG:
+            return Response({'error': 'fake login is only available in development'}, status=status.HTTP_403_FORBIDDEN)
+
         user, created = User.objects.get_or_create(
             username='testuser',
             defaults={'email': 'testuser@example.com', 'first_name': 'Test', 'last_name': 'User'},
@@ -94,6 +97,7 @@ class SessionLoginView(APIView):
         return response
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SessionLogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [SessionAuthentication]
@@ -131,6 +135,9 @@ class FakeLogoutView(APIView):
         description='페이크 로그인 세션을 종료하고 쿠키를 삭제하는 엔드포인트',
     )
     def post(self, request):
+        if not settings.DEBUG:
+            return Response({'error': 'fake logout is only available in development'}, status=status.HTTP_403_FORBIDDEN)
+
         logout(request)
 
         response = Response({'message': 'Fake logged out'}, status=status.HTTP_200_OK)

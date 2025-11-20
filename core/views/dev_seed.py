@@ -108,6 +108,9 @@ class SeedAllView(GenericAPIView):
         examples=[SEED_RESPONSE_EXAMPLE],
     )
     def post(self, request):
+        if not settings.DEBUG:
+            return Response({'error': 'seed disabled outside development'}, status=status.HTTP_400_BAD_REQUEST)
+
         with transaction.atomic():
             summary = seed_all(clear_existing=True)
         return Response(summary, status=status.HTTP_201_CREATED)
@@ -129,7 +132,7 @@ class SeedOneView(GenericAPIView):
         examples=[SEED_ONE_EXAMPLE],
     )
     def post(self, request):
-        if settings.ENVIRONMENT == 'production':
-            return Response({'error': 'seed disabled in production'}, status=status.HTTP_400_BAD_REQUEST)
+        if not settings.DEBUG:
+            return Response({'error': 'seed disabled outside development'}, status=status.HTTP_400_BAD_REQUEST)
         summary = create_one()
         return Response(summary, status=status.HTTP_201_CREATED)
