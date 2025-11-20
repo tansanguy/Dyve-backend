@@ -326,7 +326,7 @@ class MetaViewSet(viewsets.ViewSet):
     )
 )
 class MyPageViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
     def list(self, request):
         artist = getattr(request.user, 'artist_profile', None)
@@ -452,7 +452,7 @@ class ArtistViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         request=ArtistSerializer,
         responses=ArtistSerializer,
     )
-    @action(detail=False, methods=['post', 'put'], permission_classes=[permissions.IsAuthenticated], url_path='profile')
+    @action(detail=False, methods=['post', 'put'], url_path='profile')
     def profile(self, request):
         instance = getattr(request.user, 'artist_profile', None)
         serializer = self.get_serializer(instance, data=request.data, partial=bool(instance))
@@ -498,7 +498,7 @@ class SpaceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
         request=SpaceSerializer,
         responses=SpaceSerializer,
     )
-    @action(detail=False, methods=['post', 'put'], permission_classes=[permissions.IsAuthenticated], url_path='profile')
+    @action(detail=False, methods=['post', 'put'], url_path='profile')
     def profile(self, request):
         instance = request.user.spaces.first()
         serializer = self.get_serializer(instance, data=request.data, partial=bool(instance))
@@ -544,11 +544,6 @@ class EventViewSet(
 
     def get_queryset(self):
         return Event.objects.select_related('space').prefetch_related('artists').all()
-
-    def get_permissions(self):
-        if self.action == 'create':
-            return [permissions.IsAuthenticated()]
-        return super().get_permissions()
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -596,7 +591,7 @@ class EventViewSet(
 )
 class ReservationViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = ReservationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         return Reservation.objects.select_related('event', 'user')
@@ -638,7 +633,7 @@ class ReservationViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 )
 class ProposalViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ProposalSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         return Proposal.objects.filter(sender=self.request.user)

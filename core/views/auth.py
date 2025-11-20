@@ -99,7 +99,7 @@ class SessionLoginView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SessionLogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
     authentication_classes = [SessionAuthentication]
 
     @extend_schema(
