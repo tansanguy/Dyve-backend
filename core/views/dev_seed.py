@@ -6,8 +6,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import permissions, status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from utils.dummy_data import create_one, seed_all
 from ..serializers import SeedOneResponseSerializer, SeedResultSerializer
@@ -73,7 +73,7 @@ SEED_ONE_EXAMPLE = OpenApiExample(
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class SeedAllView(APIView):
+class SeedAllView(GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
@@ -90,7 +90,7 @@ class SeedAllView(APIView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class SeedOneView(APIView):
+class SeedOneView(GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
