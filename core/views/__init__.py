@@ -3,6 +3,8 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -256,6 +258,7 @@ HOME_AROUND_PARAMETERS = [
 ]
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 @extend_schema_view(
     list=extend_schema(
         tags=['Meta'],
@@ -413,6 +416,7 @@ class MyPageViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 @extend_schema_view(
     list=extend_schema(
         tags=['Artists'],
@@ -458,6 +462,7 @@ class ArtistViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return Response(serializer.data, status=status_code)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 @extend_schema_view(
     list=extend_schema(
         tags=['Spaces'],
@@ -503,6 +508,7 @@ class SpaceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
         return Response(serializer.data, status=status_code)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 @extend_schema_view(
     list=extend_schema(
         tags=['Events'],
@@ -574,6 +580,7 @@ class EventViewSet(
         serializer.save()
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 @extend_schema_view(
     create=extend_schema(
         tags=['Reservations'],
