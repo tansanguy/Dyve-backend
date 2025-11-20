@@ -22,6 +22,21 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'username']
 
 
+class SessionLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
+
+class SessionLoginResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+    user = UserSerializer()
+    csrf_token = serializers.CharField()
+
+
+class SessionLogoutResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+
+
 class NotificationSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationSetting

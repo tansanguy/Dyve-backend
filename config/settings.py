@@ -101,6 +101,7 @@ CORS_ALLOW_HEADERS = ["*"]
 CORS_ALLOWED_ORIGINS = [
     "https://dyve-6nk4.vercel.app",
     "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
+    "https://dyve-front.vercel.app",
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https:\/\/.*vercel\.app$",
@@ -111,12 +112,16 @@ CSRF_TRUSTED_ORIGINS = [
     "https://dyve-backend-ui3c.onrender.com",
     "https://dyve-6nk4.vercel.app",
     "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
+    "https://dyve-front.vercel.app",
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
     ],
 }
 
