@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from django.conf import settings
+from django.db import transaction
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db import transaction
 
 from utils.dummy_data import create_one, seed_all
 from ..serializers import SeedOneResponseSerializer, SeedResultSerializer
@@ -70,6 +72,7 @@ SEED_ONE_EXAMPLE = OpenApiExample(
 )
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class SeedAllView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -86,6 +89,7 @@ class SeedAllView(APIView):
         return Response(summary, status=status.HTTP_201_CREATED)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class SeedOneView(APIView):
     permission_classes = [permissions.AllowAny]
 

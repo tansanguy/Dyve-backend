@@ -274,6 +274,13 @@ EVENT_DESCRIPTIONS = [
 RUNNING_TIMES = [60, 75, 90]
 
 
+_single_entry_type_cycle = cycle(TICKET_TYPES)
+
+
+def _next_single_entry_type() -> str:
+    return next(_single_entry_type_cycle)
+
+
 class DummyDataBuilder:
     """Builds curated artists, spaces, and events with Cloudinary-hosted images."""
 
@@ -486,6 +493,7 @@ def create_dummy_event(
     artist: Artist,
     space: Space,
     image_loader: DummyImageLoader | None = None,
+    entry_type: str | None = None,
 ):
     loader = image_loader or DummyImageLoader()
     poster_url = _safe_url(loader.next_event_poster())
@@ -498,7 +506,7 @@ def create_dummy_event(
     time_value = future_start.time().replace(second=0, microsecond=0)
     genre = random.choice(GENRES) if GENRES else 'Indie'
     price = random.choice(PRICE_OPTIONS)
-    entry_type = random.choice(TICKET_TYPES)
+    entry_type_value = entry_type or random.choice(TICKET_TYPES)
     running_time = random.choice(RUNNING_TIMES)
     event = Event.objects.create(
         title=title,
@@ -511,7 +519,7 @@ def create_dummy_event(
         address=space.address,
         price=price,
         is_free=price == 0,
-        entry_type=entry_type,
+        entry_type=entry_type_value,
         image_url=poster_url,
         allow_dyve_reservation=True,
         advertise=False,
@@ -526,7 +534,7 @@ def create_dummy_event(
         'genre': genre,
         'running_time': running_time,
         'price': price,
-        'entry_type': entry_type,
+        'entry_type': entry_type_value,
     }
     return event, meta
 
@@ -535,7 +543,8 @@ def create_one() -> Dict[str, Dict[str, object]]:
     loader = DummyImageLoader()
     artist, artist_meta = create_dummy_artist(loader)
     space, space_meta = create_dummy_space(loader)
-    event, event_meta = create_dummy_event(artist, space, loader)
+    entry_type = _next_single_entry_type()
+    event, event_meta = create_dummy_event(artist, space, loader, entry_type=entry_type)
     return {
         'artist': {
             'id': artist.id,
