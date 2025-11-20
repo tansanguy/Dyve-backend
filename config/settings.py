@@ -91,6 +91,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ["*"]
 CORS_ALLOWED_ORIGINS = [
@@ -105,6 +110,7 @@ CORS_ALLOW_ALL_ORIGINS = ENVIRONMENT != "production"
 CSRF_TRUSTED_ORIGINS = [
     "https://dyve-backend-ui3c.onrender.com",
     "https://dyve-6nk4.vercel.app",
+    "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
 ]
 
 REST_FRAMEWORK = {
