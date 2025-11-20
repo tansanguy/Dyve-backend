@@ -71,6 +71,30 @@ SEED_ONE_EXAMPLE = OpenApiExample(
     response_only=True,
 )
 
+OFFLINE_STATIC_SEED_DATA = {
+    "artists": [
+        {"id": 1, "name": "Offline Indigo", "category": "밴드", "genres": ["Indie", "Rock"], "description": "로컬 인디 라인업 테스트용", "portfolio_link": "https://example.com/offline/indigo"},
+        {"id": 2, "name": "Synth Harbor", "category": "프로듀서", "genres": ["Electronic"], "description": "신스 기반 프로듀서 듀오", "portfolio_link": "https://example.com/offline/synth-harbor"},
+        {"id": 3, "name": "Jazz Alley Crew", "category": "재즈 앙상블", "genres": ["Jazz"], "description": "라운지 잼 세션용 크루", "portfolio_link": "https://example.com/offline/jazz-alley"},
+        {"id": 4, "name": "Rooftop Stories", "category": "싱어송라이터", "genres": ["Folk"], "description": "루프탑 버스킹 레퍼런스", "portfolio_link": "https://example.com/offline/rooftop-stories"},
+        {"id": 5, "name": "Metro Pulse", "category": "힙합 크루", "genres": ["Hip-Hop"], "description": "도시 기반 비트 퍼포먼스 팀", "portfolio_link": "https://example.com/offline/metro-pulse"},
+    ],
+    "spaces": [
+        {"id": 1, "name": "오프라인 브릭홀", "region": "서울", "address": "서울시 성동구 브릭로 11", "capacity": 120, "mood": "도시적인"},
+        {"id": 2, "name": "베이사이드 라운지", "region": "인천", "address": "인천 연수구 바다길 42", "capacity": 90, "mood": "야경"},
+        {"id": 3, "name": "산책길 포켓스테이지", "region": "전라", "address": "광주 동구 산책로 7", "capacity": 60, "mood": "감성적인"},
+        {"id": 4, "name": "루프탑 노바", "region": "부산", "address": "부산 수영구 광안로 88", "capacity": 150, "mood": "루프탑"},
+        {"id": 5, "name": "문라이트 스퀘어", "region": "서울", "address": "서울 마포구 문라이트길 15", "capacity": 110, "mood": "따뜻한"},
+    ],
+    "events": [
+        {"id": 1, "title": "Indigo Session", "entry_type": "입장확인", "price": 0, "region": "서울", "venue_name": "오프라인 브릭홀", "date_time": "2024-10-01 19:00"},
+        {"id": 2, "title": "Harbor Grooves", "entry_type": "좌석", "price": 15000, "region": "인천", "venue_name": "베이사이드 라운지", "date_time": "2024-10-02 20:00"},
+        {"id": 3, "title": "Alley Jazz Night", "entry_type": "스탠딩", "price": 20000, "region": "전라", "venue_name": "산책길 포켓스테이지", "date_time": "2024-10-03 19:30"},
+        {"id": 4, "title": "Rooftop Folk Live", "entry_type": "입장확인", "price": 10000, "region": "부산", "venue_name": "루프탑 노바", "date_time": "2024-10-04 20:30"},
+        {"id": 5, "title": "Metro Pulse Showcase", "entry_type": "좌석", "price": 18000, "region": "서울", "venue_name": "문라이트 스퀘어", "date_time": "2024-10-05 18:30"},
+    ],
+}
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class SeedAllView(GenericAPIView):
