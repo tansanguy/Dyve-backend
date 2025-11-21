@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = 'django-insecure-dyve-backend-secret-key'
-DEBUG = True
 ENVIRONMENT = os.getenv("DJANGO_ENV", "development").lower()
+DEBUG = ENVIRONMENT != "production"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -102,6 +102,7 @@ CORS_ALLOW_HEADERS = ["*"]
 CORS_ALLOWED_ORIGINS = [
     "https://dyve-6nk4.vercel.app",
     "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
+    "https://dyve-oct3jb3uk-tansanguys-projects.vercel.app",
     "https://dyve-front.vercel.app",
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
@@ -113,6 +114,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://dyve-backend-ui3c.onrender.com",
     "https://dyve-6nk4.vercel.app",
     "https://dyve-front-git-bepo-tansanguys-projects.vercel.app",
+    "https://dyve-oct3jb3uk-tansanguys-projects.vercel.app",
     "https://dyve-front.vercel.app",
 ]
 

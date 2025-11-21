@@ -13,6 +13,7 @@ from .views import (
 )
 from .views.dev_seed import SeedAllView, SeedOneView
 from .views.auth import FakeLoginView, FakeLogoutView, SessionLoginView, SessionLogoutView
+from .views.upload_image import ImageUploadView
 
 router = DefaultRouter()
 router.register('meta', MetaViewSet, basename='meta')
@@ -31,4 +32,5 @@ urlpatterns = router.urls + [
     path('auth/logout/', SessionLogoutView.as_view(), name='auth-logout'),
     path('auth/fake-login/', FakeLoginView.as_view(), name='auth-fake-login'),
     path('auth/fake-logout/', FakeLogoutView.as_view(), name='auth-fake-logout'),
+    path('uploads/image/', ImageUploadView.as_view(), name='upload-image'),
 ]
